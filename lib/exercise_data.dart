@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 
-class DisplayData {
-  DisplayData(  this.client);
+class ExerciseData {
+  ExerciseData(this.exerciseName);
 
   void reset() {
     currentRepetitions = 0;
@@ -17,15 +17,14 @@ class DisplayData {
 
   @override
   String toString() {
-    return 'DisplayData{client: "$client", exercise: ${exercise??'unknown'}, reps: $currentRepetitions'
+    return 'DisplayData{exercise: $exerciseName, reps: $currentRepetitions'
         '${targetRepetitions==null? '': '/$targetRepetitions'}'
         ', start: ${_displayTime(start)}'
         '${targetDuration == null ? '' : ', duration: ${targetDuration!.inSeconds}}'}'
         '}';
   }
 
-  final String client;
-  String? exercise;
+  String exerciseName;
   int currentRepetitions = 0;
   int? targetRepetitions;
   DateTime start = DateTime.now();

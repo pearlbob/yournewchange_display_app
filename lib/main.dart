@@ -1,10 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
+import 'package:yournewchange_display_app/exercise_active_widget.dart';
+import 'package:yournewchange_display_app/exercise_passive_widget.dart';
 
-import 'display_data.dart';
+import 'app/app.dart';
+import 'exercise_data.dart';
 
-DisplayData displayData = DisplayData('Josh');
+String client = 'Josh';
+ExerciseData exerciseData = ExerciseData('curls');
 
 void main() {
   Logger.level = kDebugMode ? Level.info : Level.warning;
@@ -18,7 +25,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       title: 'Your New Change',
       theme: ThemeData(
@@ -64,6 +70,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  @override
+  void initState() {
+    super.initState();
+
+    myTimer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+      setState(() {});
+    });
+  }
+
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -71,13 +86,17 @@ class _MyHomePageState extends State<MyHomePage> {
       // so that the display can reflect the updated values. If we changed
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
-      displayData.currentRepetitions++;
+      exerciseData.currentRepetitions++;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? style = Theme.of(context).textTheme.headlineMedium;
+    final TextStyle style = Theme.of(context).textTheme.headlineMedium ?? TextStyle();
+
+    if ( _clientTextEditingController.text.isEmpty) {
+      _clientTextEditingController.text = client;
+    }
 
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -96,23 +115,46 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(28.0),
+        padding: const EdgeInsets.all(40.0),
         child: Center(
           // Center is a layout widget. It takes a single child and positions it
           // in the middle of the parent.
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              Text('Repetitions:  ', style: style),
-              Text(
-                '${displayData.currentRepetitions}',
-                style: style,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppSpace(
+                verticalSpace: 20,
               ),
-              if (displayData.targetRepetitions != null)
-                Text(
-                  ' / ${displayData.targetRepetitions}',
-                  style: style,
-                ),
+              Text(DateFormat.jms().format(DateTime.now()), style: style),
+              AppSpace(
+                verticalSpace: 20,
+              ),
+              Text('active:  ', style: style),
+              Row(
+                children: [
+                  Text('Client:  ', style: style),
+                  AppTextField(
+                    controller: _clientTextEditingController,
+                    hintText: 'client name.',
+                    width: (style.fontSize ?? App.appDefaultFontSize) * 10,
+                    maxLines: 1,
+                    style: style,
+                    onChanged: (value) {
+                      if (value.isNotEmpty) {
+                        setState(() {
+                          client = value;
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
+              ExerciseActiveWidget(),
+              AppSpace(
+                verticalSpace: 20,
+              ),
+              Text('passive:  ', style: style),
+              ExercisePassiveWidget(),
             ],
           ),
         ),
@@ -124,4 +166,13 @@ class _MyHomePageState extends State<MyHomePage> {
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+
+  @override
+  void dispose() {
+    myTimer?.cancel();
+    super.dispose();
+  }
+
+  final TextEditingController _clientTextEditingController = TextEditingController();
+  Timer? myTimer;
 }
