@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 import 'package:yournewchange_display_app/exercise_active_widget.dart';
 import 'package:yournewchange_display_app/exercise_passive_widget.dart';
 
@@ -11,7 +11,8 @@ import 'app/app.dart';
 import 'exercise_data.dart';
 
 String client = 'Josh';
-ExerciseData exerciseData = ExerciseData('curls');
+ClockRefreshNotifier _clockRefreshNotifier = ClockRefreshNotifier();
+ExerciseDataNotifier _exerciseDataNotifier = ExerciseDataNotifier();
 
 void main() {
   Logger.level = kDebugMode ? Level.info : Level.warning;
@@ -75,28 +76,18 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
 
     myTimer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
-      setState(() {});
+      DateTime now = DateTime.now();
+      if (now.minute != lastClockMinutes) {
+        _clockRefreshNotifier.refresh(now);
+        lastClockMinutes = now.minute; //  only update on change of minutes
+      }
     });
   }
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      exerciseData.currentRepetitions++;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle style = Theme.of(context).textTheme.headlineMedium ?? TextStyle();
-
-    if ( _clientTextEditingController.text.isEmpty) {
-      _clientTextEditingController.text = client;
-    }
+    final TextStyle style = Theme.of(context).textTheme.headlineLarge ?? TextStyle();
 
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -104,66 +95,42 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(40.0),
-        child: Center(
-          // Center is a layout widget. It takes a single child and positions it
-          // in the middle of the parent.
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppSpace(
-                verticalSpace: 20,
-              ),
-              Text(DateFormat.jms().format(DateTime.now()), style: style),
-              AppSpace(
-                verticalSpace: 20,
-              ),
-              Text('active:  ', style: style),
-              Row(
-                children: [
-                  Text('Client:  ', style: style),
-                  AppTextField(
-                    controller: _clientTextEditingController,
-                    hintText: 'client name.',
-                    width: (style.fontSize ?? App.appDefaultFontSize) * 10,
-                    maxLines: 1,
-                    style: style,
-                    onChanged: (value) {
-                      if (value.isNotEmpty) {
-                        setState(() {
-                          client = value;
-                        });
-                      }
-                    },
-                  ),
-                ],
-              ),
-              ExerciseActiveWidget(),
-              AppSpace(
-                verticalSpace: 20,
-              ),
-              Text('passive:  ', style: style),
-              ExercisePassiveWidget(),
-            ],
+    return MultiProvider(
+      providers: [
+        //  has to be a widget level above it's use
+        ChangeNotifierProvider<ClockRefreshNotifier>(create: (_) => _clockRefreshNotifier),
+        ChangeNotifierProvider<ExerciseDataNotifier>(create: (_) => _exerciseDataNotifier)
+      ],
+      child: Scaffold(
+        appBar: AppBar(
+          // TRY THIS: Try changing the color here to a specific color (to
+          // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
+          // change color while the other colors stay the same.
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          title: Text(widget.title),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(90.0),
+          child: Center(
+            // Center is a layout widget. It takes a single child and positions it
+            // in the middle of the parent.
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('active:  ', style: style),
+                ExerciseActiveWidget(),
+                AppSpace(
+                  verticalSpace: 50,
+                ),
+                Text('passive:  ', style: style),
+                ExercisePassiveWidget(),
+              ],
+            ),
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
@@ -173,6 +140,28 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  final TextEditingController _clientTextEditingController = TextEditingController();
+  int lastClockMinutes = -1; //  will always trigger on first use
   Timer? myTimer;
+}
+
+class ClockRefreshNotifier extends ChangeNotifier {
+  void refresh(final DateTime refreshedNow) {
+    now = refreshedNow;
+    // logger.i( 'ClockRefreshNotifier: ${identityHashCode(this)}: $now');
+    notifyListeners();
+  }
+
+  DateTime now = DateTime.now();
+}
+
+class ExerciseDataNotifier extends ChangeNotifier {
+  void refresh(final ExerciseData newData) {
+    if (newData != exerciseData) {
+      exerciseData = newData;
+      // logger.i( 'ExerciseDataNotifier: ${identityHashCode(this)}: $data');
+      notifyListeners();
+    }
+  }
+
+  ExerciseData exerciseData = ExerciseData();
 }
