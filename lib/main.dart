@@ -130,12 +130,12 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('active:  ', style: style),
+                Text('coach display:  ', style: style),
                 ExerciseActiveWidget(),
                 AppSpace(
                   verticalSpace: 50,
                 ),
-                Text('passive:  ', style: style),
+                Text('client display:  ', style: style),
                 ExercisePassiveWidget(),
               ],
             ),

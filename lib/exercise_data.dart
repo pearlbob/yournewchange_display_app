@@ -40,10 +40,10 @@ class ExerciseData {
   Map<String, dynamic> toJson() => {
         'exerciseMetric': exerciseMetric.name,
         'exerciseName': exerciseName,
-        //not required 'currentRepetitions': currentRepetitions,
+        'currentRepetitions': currentRepetitions,
         'targetRepetitions': targetRepetitions,
         //not required 'isRunning': isRunning,
-        //not required 'currentDuration': currentDuration,
+        'currentDuration': currentDuration,
         'targetDuration': targetDuration,
       };
 
@@ -52,7 +52,10 @@ class ExerciseData {
     var name = json['exerciseMetric'];
     ret.exerciseMetric = ExerciseMetric.values.where((e) => e.name == name).first;
     ret.exerciseName = json['exerciseName'];
+    ret.currentRepetitions = json['currentRepetitions'];
     ret.targetRepetitions = json['targetRepetitions'];
+    //not required  ret.isRunning = json['isRunning'];
+    ret.currentDuration = json['currentDuration'];
     ret.targetDuration = json['targetDuration'];
     return ret;
   }
@@ -74,11 +77,18 @@ class ExerciseData {
   int get hashCode => Object.hash(
       exerciseMetric, exerciseName, currentRepetitions, targetRepetitions, isRunning, currentDuration, targetDuration);
 
+  //  class variables
   ExerciseMetric exerciseMetric = ExerciseMetric.repetitions;
   String exerciseName = 'curls'; //  default only
+  //  hints:
+  //  double weight = 0;  //  in pounds?
+  //   List<String> bandColors = [];
   int currentRepetitions = 0;
   int? targetRepetitions = 12; //  default only
   bool isRunning = false;
   int currentDuration = 0;
   int? targetDuration = 60; //  in seconds, default only
+//  hints:
+//  DateTime startTime = DateTime.now();
+//  DateTime endTime = DateTime.now();//  default only
 }

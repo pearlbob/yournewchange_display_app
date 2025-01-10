@@ -15,6 +15,7 @@ class ExercisePassiveWidget extends StatefulWidget {
   }
 }
 
+/// The passive display, that is the client facing display
 class _ExercisePassiveState extends State<ExercisePassiveWidget> {
   @override
   Widget build(BuildContext context) {
@@ -34,15 +35,18 @@ class _ExercisePassiveState extends State<ExercisePassiveWidget> {
         var exerciseData = exerciseDataNotifier.exerciseData;
         var currentTime = (exerciseData.currentRepetitions - (exerciseData.targetRepetitions ?? 0));
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppSpace(verticalSpace: 40),
+            AppSpace(),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 Text(exerciseData.exerciseName, style: style),
               ],
             ),
-            AppSpace(verticalSpace: 40),
+            AppSpace(),
+            Text('(video goes here)', style: style),
+            AppSpace(),
             if (exerciseData.exerciseMetric == ExerciseMetric.repetitions)
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -71,7 +75,7 @@ class _ExercisePassiveState extends State<ExercisePassiveWidget> {
                     ),
                 ],
               ),
-            AppSpace(verticalSpace: 40),
+            AppSpace(),
             if (exerciseData.exerciseMetric == ExerciseMetric.time)
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,

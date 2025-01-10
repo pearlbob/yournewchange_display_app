@@ -15,6 +15,7 @@ class ExerciseActiveWidget extends StatefulWidget {
   }
 }
 
+/// The inter active display, that is the coach facing display
 class _ExerciseActiveState extends State<ExerciseActiveWidget> {
   @override
   Widget build(BuildContext context) {
@@ -27,10 +28,21 @@ class _ExerciseActiveState extends State<ExerciseActiveWidget> {
         AppSpace(
           verticalSpace: 20,
         ),
-        Consumer<ClockRefreshNotifier>(
-          builder: (context, clockRefreshNotifier, child) {
-            return Text(DateFormat.jm().format(clockRefreshNotifier.now), style: style);
-          },
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Consumer<ClockRefreshNotifier>(
+              builder: (context, clockRefreshNotifier, child) {
+                return Text(DateFormat.jm().format(clockRefreshNotifier.now), style: style);
+              },
+            ),
+            Consumer<ClockRefreshNotifier>(
+              builder: (context, clockRefreshNotifier, child) {
+                return Text('${50-clockRefreshNotifier.now.minute} min left', style: style);
+              },
+            ),
+            appButton('next', onPressed: (){}),
+          ],
         ),
         Consumer<ExerciseDataNotifier>(builder: (context, exerciseDataNotifier, child) {
           var exerciseData = exerciseDataNotifier.exerciseData;
