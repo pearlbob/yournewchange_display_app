@@ -6,13 +6,19 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:yournewchange_display_app/exercise_active_widget.dart';
 import 'package:yournewchange_display_app/exercise_passive_widget.dart';
+import 'package:yournewchange_display_app/web_client.dart';
 
 import 'app/app.dart';
+import 'app_logger.dart';
 import 'exercise_data.dart';
 
 String client = 'Josh';
 ClockRefreshNotifier _clockRefreshNotifier = ClockRefreshNotifier();
 ExerciseDataNotifier _exerciseDataNotifier = ExerciseDataNotifier();
+final WebSocketClient webSocketClient = WebSocketClient();
+
+Level _logMessaging = Level.info;
+Level _logConnection = Level.info;
 
 void main() {
   Logger.level = kDebugMode ? Level.info : Level.warning;
@@ -75,6 +81,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
+    webSocketClient.addListener(_webSocketClientListener);
+
     myTimer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
       DateTime now = DateTime.now();
       if (now.minute != lastClockMinutes) {
@@ -130,6 +138,9 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                appButton('test', onPressed: () {
+                  webSocketClient.sendMessage('hello dude');
+                }),
                 Text('coach display:  ', style: style),
                 ExerciseActiveWidget(),
                 AppSpace(
@@ -145,12 +156,25 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  _webSocketClientListener() {
+    logger.log(_logMessaging, 'webSocketClient._webSocketClientListener():');
+    if (_lastConnection != webSocketClient.isConnected) {
+      setState(() {
+        //  update state on a connection change
+        _lastConnection = webSocketClient.isConnected;
+        logger.log(_logConnection, 'connection: ${webSocketClient.isConnected}');
+      });
+    }
+    logger.log(_logMessaging, 'message: ????');
+  }
+
   @override
   void dispose() {
     myTimer?.cancel();
     super.dispose();
   }
 
+  bool _lastConnection = false;
   int lastClockMinutes = -1; //  will always trigger on first use
   Timer? myTimer;
 }
@@ -176,7 +200,6 @@ class ExerciseDataNotifier extends ChangeNotifier {
 
   // fixme: this copy is a bit abusive but required to see the diff on the refresh
   get exerciseData => _exerciseData.copy();
-
 
   ExerciseData _exerciseData = ExerciseData();
 }

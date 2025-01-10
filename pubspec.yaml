@@ -30,6 +30,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  shelf:
+  shelf_router:
+  shelf_web_socket:
+  web_socket_channel:
   intl:
   provider:
   logger:
