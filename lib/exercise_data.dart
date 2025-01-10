@@ -37,6 +37,26 @@ class ExerciseData {
     return copy;
   }
 
+  Map<String, dynamic> toJson() => {
+        'exerciseMetric': exerciseMetric.name,
+        'exerciseName': exerciseName,
+        //not required 'currentRepetitions': currentRepetitions,
+        'targetRepetitions': targetRepetitions,
+        //not required 'isRunning': isRunning,
+        //not required 'currentDuration': currentDuration,
+        'targetDuration': targetDuration,
+      };
+
+  factory ExerciseData.fromJson(Map<String, dynamic> json) {
+    var ret = ExerciseData();
+    var name = json['exerciseMetric'];
+    ret.exerciseMetric = ExerciseMetric.values.where((e) => e.name == name).first;
+    ret.exerciseName = json['exerciseName'];
+    ret.targetRepetitions = json['targetRepetitions'];
+    ret.targetDuration = json['targetDuration'];
+    return ret;
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
