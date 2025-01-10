@@ -81,14 +81,24 @@ class _MyHomePageState extends State<MyHomePage> {
         _clockRefreshNotifier.refresh(now);
         lastClockMinutes = now.minute; //  only update on change of minutes
       }
+
+      //  run the timer
+      var exerciseData = _exerciseDataNotifier.exerciseData;
+      if (exerciseData.isRunning) {
+        if (exerciseData.currentDuration < (exerciseData.targetDuration ?? 0)) {
+          exerciseData.currentDuration++;
+        } else {
+          exerciseData.isRunning = false;
+        }
+        _exerciseDataNotifier.refresh(exerciseData);
+      }
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
-     TextStyle style = themeData.textTheme.headlineLarge ?? TextStyle();
+    TextStyle style = themeData.textTheme.headlineLarge ?? TextStyle();
 
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -100,7 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
       providers: [
         //  has to be a widget level above it's use
         ChangeNotifierProvider<ClockRefreshNotifier>(create: (_) => _clockRefreshNotifier),
-        ChangeNotifierProvider<ExerciseDataNotifier>(create: (_) => _exerciseDataNotifier)
+        ChangeNotifierProvider<ExerciseDataNotifier>(create: (_) => _exerciseDataNotifier),
       ],
       child: Scaffold(
         appBar: AppBar(
@@ -157,12 +167,14 @@ class ClockRefreshNotifier extends ChangeNotifier {
 
 class ExerciseDataNotifier extends ChangeNotifier {
   void refresh(final ExerciseData newData) {
-    if (newData != exerciseData) {
-      exerciseData = newData;
+    if (newData != _exerciseData) {
+      _exerciseData = newData.copy();
       // logger.i( 'ExerciseDataNotifier: ${identityHashCode(this)}: $data');
       notifyListeners();
     }
   }
 
-  ExerciseData exerciseData = ExerciseData();
+  get exerciseData => _exerciseData.copy();  // fixme: this copy is a bit abusive but required to see the diff on the refresh
+
+  ExerciseData _exerciseData = ExerciseData();
 }

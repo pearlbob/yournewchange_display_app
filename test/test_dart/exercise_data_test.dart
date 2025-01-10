@@ -9,19 +9,19 @@ void main() {
   test('test display data', () {
     //  note that the display data class does not use flutter so it can be tested in dart
 
-    ExerciseData dd = ExerciseData();
-    logger.i('$dd'); //  toString() used
-    var start = dd.start;
+    ExerciseData exerciseData = ExerciseData();
+    logger.i('$exerciseData'); //  toString() used
+    var start = exerciseData.currentDuration;
 
-    dd.currentRepetitions++;
-    dd.targetRepetitions = 12;
-    logger.i('$dd');
-    expect(dd.currentRepetitions, 1);
+    exerciseData.currentRepetitions++;
+    exerciseData.targetRepetitions = 12;
+    logger.i('$exerciseData');
+    expect(exerciseData.currentRepetitions, 1);
 
-    dd.reset();
-    expect(dd.currentRepetitions, 0);
-    assert(start.compareTo(dd.start) < 0); //  i.e. a new start on a reset
-    logger.i('$dd');
+    exerciseData.reset();
+    expect(exerciseData.currentRepetitions, 0);
+    expect(start.compareTo(exerciseData.currentDuration), 0); //  i.e. a new start on a reset
+    logger.i('$exerciseData');
 
     // expect(dd.currentRepetitions, 123); //  sample test failure
   });

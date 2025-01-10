@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'app/app.dart';
+import 'exercise_data.dart';
 import 'main.dart';
 
 class ExerciseActiveWidget extends StatefulWidget {
@@ -22,6 +23,7 @@ class _ExerciseActiveState extends State<ExerciseActiveWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        //  clock
         AppSpace(
           verticalSpace: 20,
         ),
@@ -31,21 +33,19 @@ class _ExerciseActiveState extends State<ExerciseActiveWidget> {
           },
         ),
         Consumer<ExerciseDataNotifier>(builder: (context, exerciseDataNotifier, child) {
-          var exerciseData = exerciseDataNotifier.exerciseData.copy();
+          var exerciseData = exerciseDataNotifier.exerciseData;
 
-          // if (_exerciseNameTextEditingController.text.isEmpty)
-          {
-            _exerciseNameTextEditingController.text = exerciseData.exerciseName;
-          }
+          _exerciseNameTextEditingController.text = exerciseData.exerciseName;
           _repetitionTextEditingController.text = exerciseData.targetRepetitions.toString();
-          _durationTextEditingController.text = (exerciseData.targetDuration?.inSeconds ?? 60).toString();
+          _durationTextEditingController.text = (exerciseData.targetDuration ?? 60).toString();
 
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  Text('Name:  ', style: style),
+                  Text('Exercise:  ', style: style),
                   AppTextField(
                     controller: _exerciseNameTextEditingController,
                     hintText: 'Name of the exercise',
@@ -64,107 +64,168 @@ class _ExerciseActiveState extends State<ExerciseActiveWidget> {
                 ],
               ),
               AppSpace(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Text('Reps:  ', style: style),
-                  SizedBox(
-                    width: (style.fontSize ?? App.defaultFontSize) * 2,
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        '${exerciseData.currentRepetitions}',
-                        style: style.copyWith(),
-                      ),
+              SegmentedButton<ExerciseMetric>(
+                showSelectedIcon: false,
+                style: ButtonStyle(
+                  visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
+                ),
+                segments: <ButtonSegment<ExerciseMetric>>[
+                  ButtonSegment<ExerciseMetric>(
+                    label: Text(
+                      'Reps',
+                      style: style,
                     ),
+                    value: ExerciseMetric.repetitions,
+                    enabled: true,
                   ),
-                  Text(
-                    ' / ',
-                    style: style,
-                  ),
-                  AppTextField(
-                    controller: _repetitionTextEditingController,
-                    keyboardType: TextInputType.number,
-                    hintText: 'reps',
-                    width: (style.fontSize ?? App.defaultFontSize) * 2,
-                    maxLines: 1,
-                    style: style,
-                    onChanged: (value) {
-                      if (value.isNotEmpty) {
-                        setState(() {
-                          int? reps = int.tryParse(value);
-                          if (reps != null) {
-                            exerciseData.targetRepetitions = reps;
-                            exerciseDataNotifier.refresh(exerciseData);
-                          }
-                        });
-                      }
-                    },
-                  ),
-                  AppSpace(),
-                  SizedBox(
-                    width: (style.fontSize ?? App.defaultFontSize) * 3,
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        '(${exerciseData.currentRepetitions - (exerciseData.targetRepetitions ?? 0)})',
-                        style: style,
-                      ),
+                  ButtonSegment<ExerciseMetric>(
+                    label: Text(
+                      'Time',
+                      style: style,
                     ),
+                    value: ExerciseMetric.time,
+                    enabled: true,
                   ),
-
-                  AppSpace(),
-                  appIconButton(
-                    icon: const Icon(Icons.clear),
-                    iconSize: 1.25 * (style.fontSize ?? App.defaultFontSize),
-                    onPressed: (() {
-                      exerciseData.currentRepetitions = 0;
-                      exerciseDataNotifier.refresh(exerciseData);
-                    }),
-                  ),
-                  AppSpace(),
-                  appIconButton(
-                    icon: const Icon(Icons.add),
-                    iconSize: 1.25 * (style.fontSize ?? App.defaultFontSize),
-                    onPressed: (() {
-                      exerciseData.currentRepetitions++;
-                      exerciseDataNotifier.refresh(exerciseData);
-                    }),
-                  )
                 ],
+                selected: <ExerciseMetric>{exerciseData.exerciseMetric},
+                onSelectionChanged: (Set<ExerciseMetric> newSelection) {
+                  // logger.i('onSelectionChanged: $newSelection');
+                  exerciseData.exerciseMetric = newSelection.first;
+                  exerciseDataNotifier.refresh(exerciseData);
+                },
               ),
               AppSpace(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Text('Duration:  ', style: style),
-                  AppTextField(
-                    controller: _durationTextEditingController,
-                    keyboardType: TextInputType.number,
-                    hintText: 'seconds',
-                    width: (style.fontSize ?? App.defaultFontSize) * 2,
-                    maxLines: 1,
-                    style: style,
-                    onChanged: (value) {
-                      if (value.isNotEmpty) {
-                        setState(() {
-                          int? seconds = int.tryParse(value);
-                          if (seconds != null) {
-                            exerciseData.targetDuration = Duration(seconds: seconds);
-                            exerciseDataNotifier.refresh(exerciseData);
-                          }
-                        });
-                      }
-                    },
-                  ),
-                  Text(' s', style: style),
-                  AppSpace(),
-                  appButton(
-                    'Start',
-                    onPressed: () {},
-                  ),
-                ],
-              ),
+              if (exerciseData.exerciseMetric == ExerciseMetric.repetitions)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Text('Reps:  ', style: style),
+                    SizedBox(
+                      width: (style.fontSize ?? App.defaultFontSize) * 2,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '${exerciseData.currentRepetitions}',
+                          style: style.copyWith(),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      ' / ',
+                      style: style,
+                    ),
+                    AppTextField(
+                      controller: _repetitionTextEditingController,
+                      keyboardType: TextInputType.number,
+                      hintText: 'reps',
+                      width: (style.fontSize ?? App.defaultFontSize) * 2,
+                      maxLines: 1,
+                      style: style,
+                      onChanged: (value) {
+                        if (value.isNotEmpty) {
+                          setState(() {
+                            int? reps = int.tryParse(value);
+                            if (reps != null) {
+                              exerciseData.targetRepetitions = reps;
+                              exerciseDataNotifier.refresh(exerciseData);
+                            }
+                          });
+                        }
+                      },
+                    ),
+                    AppSpace(),
+                    SizedBox(
+                      width: (style.fontSize ?? App.defaultFontSize) * 3,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '(${exerciseData.currentRepetitions - (exerciseData.targetRepetitions ?? 0)})',
+                          style: style,
+                        ),
+                      ),
+                    ),
+                    AppSpace(),
+                    appIconButton(
+                      icon: const Icon(Icons.clear),
+                      iconSize: 1.25 * (style.fontSize ?? App.defaultFontSize),
+                      onPressed: (() {
+                        exerciseData.currentRepetitions = 0;
+                        exerciseDataNotifier.refresh(exerciseData);
+                      }),
+                    ),
+                    AppSpace(),
+                    appIconButton(
+                      icon: const Icon(Icons.add),
+                      iconSize: 1.25 * (style.fontSize ?? App.defaultFontSize),
+                      onPressed: (() {
+                        exerciseData.currentRepetitions++;
+                        exerciseDataNotifier.refresh(exerciseData);
+                      }),
+                    )
+                  ],
+                ),
+              AppSpace(),
+              if (exerciseData.exerciseMetric == ExerciseMetric.time)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Text('Duration:  ', style: style),
+                    AppSpace(),
+                    SizedBox(
+                      width: (style.fontSize ?? App.defaultFontSize) * 2,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '${exerciseData.currentDuration}',
+                          style: style.copyWith(),
+                        ),
+                      ),
+                    ),
+                    Text(' / ', style: style),
+                    AppSpace(),
+                    AppTextField(
+                      controller: _durationTextEditingController,
+                      keyboardType: TextInputType.number,
+                      hintText: 'seconds',
+                      width: (style.fontSize ?? App.defaultFontSize) * 2,
+                      maxLines: 1,
+                      style: style,
+                      onChanged: (value) {
+                        if (value.isNotEmpty) {
+                          setState(() {
+                            int? seconds = int.tryParse(value);
+                            if (seconds != null) {
+                              exerciseData.targetDuration = seconds;
+                              exerciseDataNotifier.refresh(exerciseData);
+                            }
+                          });
+                        }
+                      },
+                    ),
+                    Text('s', style: style),
+                    AppSpace(
+                      horizontalSpace: 40,
+                    ),
+                    appButton(
+                      'Start',
+                      onPressed: () {
+                        exerciseData.currentDuration = 0;
+                        exerciseData.isRunning = true;
+                        exerciseDataNotifier.refresh(exerciseData);
+                      },
+                    ),
+                    AppSpace(
+                      horizontalSpace: 40,
+                    ),
+                    appButton(
+                      'Stop',
+                      onPressed: () {
+                        exerciseData.isRunning = false;
+                        exerciseDataNotifier.refresh(exerciseData);
+                      },
+                    ),
+                  ],
+                ),
             ],
           );
         }),

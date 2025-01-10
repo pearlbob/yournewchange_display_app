@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'app/app.dart';
+import 'exercise_data.dart';
 import 'main.dart';
 
 class ExercisePassiveWidget extends StatefulWidget {
@@ -31,6 +32,7 @@ class _ExercisePassiveState extends State<ExercisePassiveWidget> {
       ),
       Consumer<ExerciseDataNotifier>(builder: (context, exerciseDataNotifier, child) {
         var exerciseData = exerciseDataNotifier.exerciseData;
+        var currentTime = (exerciseData.currentRepetitions - (exerciseData.targetRepetitions ?? 0));
         return Column(
           children: [
             AppSpace(verticalSpace: 40),
@@ -41,49 +43,51 @@ class _ExercisePassiveState extends State<ExercisePassiveWidget> {
               ],
             ),
             AppSpace(verticalSpace: 40),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Text('Reps:     ', style: style),
-                Text(
-                  '${exerciseData.currentRepetitions}',
-                  style: style,
-                ),
-                if (exerciseData.targetRepetitions != null)
+            if (exerciseData.exerciseMetric == ExerciseMetric.repetitions)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Text('Reps:     ', style: style),
                   Text(
-                    ' / ${exerciseData.targetRepetitions}',
+                    '${exerciseData.currentRepetitions}',
                     style: style,
                   ),
-                AppSpace(),
-                if (exerciseData.targetRepetitions != null)
-                  SizedBox(
-                    width: (style.fontSize ?? App.defaultFontSize) * 3,
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        '(${exerciseData.currentRepetitions - (exerciseData.targetRepetitions ?? 0)})',
-                        style: style,
+                  if (exerciseData.targetRepetitions != null)
+                    Text(
+                      ' / ${exerciseData.targetRepetitions}',
+                      style: style,
+                    ),
+                  AppSpace(),
+                  if (exerciseData.targetRepetitions != null)
+                    SizedBox(
+                      width: (style.fontSize ?? App.defaultFontSize) * 3,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '(${currentTime.sign > 0 ? '+' : ''}$currentTime)',
+                          style: style,
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            ),
+                ],
+              ),
             AppSpace(verticalSpace: 40),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Text('Duration:          ', style: style),
-                Text(
-                  '${exerciseData.start}',
-                  style: style,
-                ),
-                if (exerciseData.targetDuration != null)
+            if (exerciseData.exerciseMetric == ExerciseMetric.time)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Text('Duration:          ', style: style),
                   Text(
-                    ' / ${exerciseData.targetDuration!.inSeconds}',
+                    '${exerciseData.currentDuration}',
                     style: style,
                   ),
-              ],
-            ),
+                  if (exerciseData.targetDuration != null)
+                    Text(
+                      ' / ${exerciseData.targetDuration}',
+                      style: style,
+                    ),
+                ],
+              ),
           ],
         );
       }),

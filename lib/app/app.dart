@@ -28,6 +28,9 @@ class App {
   static const disabledColor = Color(0xFFE8E8E8);
   static const textFieldColor = Color(0xFFE8E8E8);
 
+  //  icons
+  static const iconColor = Colors.white;
+
   static const double defaultFontSize = 28;
 
   static final App _singleton = App._internal();
@@ -175,8 +178,7 @@ ElevatedButton appButton(
     child: Text(commandName,
         style: TextStyle(
           fontSize: fontSize ?? App.defaultFontSize,
-        )
-    ),
+        )),
   );
 }
 
@@ -194,5 +196,15 @@ IconButton appIconButton({
     },
     color: color,
     iconSize: iconSize ?? App.defaultFontSize, //  demanded by IconButton
+  );
+}
+
+/// Icon widget with the application look
+Icon appIcon(IconData? iconData, {final Key? key, final Color? color, final double? size}) {
+  return Icon(
+    iconData,
+    key: key,
+    color: color ?? App.iconColor,
+    size: size ?? App.defaultFontSize, //  let the algorithm figure the size dynamically
   );
 }
