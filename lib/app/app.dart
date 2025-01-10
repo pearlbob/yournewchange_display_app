@@ -11,18 +11,24 @@ class App {
   App._internal();
 
   //  parameters to be evaluated before use
-  ThemeData themeData =
-      ThemeData.localize(ThemeData.light(useMaterial3: true), Typography().white); //  start with a default theme
+  static ThemeData themeData = ThemeData.localize(
+      //  start with a default theme
+      ThemeData.light(useMaterial3: true),
+      Typography()
+          .white
+          .copyWith(headlineLarge: Typography().white.headlineLarge?.copyWith(fontSize: 64) //  fixme: doesn't work
+              ));
 
   //  colors
   // static const appBackgroundColor = Color(0xff2196f3);
   // static const screenBackgroundColor = Colors.white;
-  // static const defaultBackgroundColor = Color(0xff2654c6);
-  // static const defaultForegroundColor = Colors.white;
-  // static const disabledColor = Color(0xFFE8E8E8);
+  static const defaultBackgroundColor = Color(0xff2654c6);
+
+  static const defaultForegroundColor = Colors.white;
+  static const disabledColor = Color(0xFFE8E8E8);
   static const textFieldColor = Color(0xFFE8E8E8);
 
-  static const appDefaultFontSize = 28;
+  static const double defaultFontSize = 28;
 
   static final App _singleton = App._internal();
 }
@@ -120,10 +126,10 @@ class AppTextField extends StatelessWidget {
 class AppSpace extends StatelessWidget {
   const AppSpace(
       {super.key,
-        this.space,
-        //this.spaceFactor = 1.0,
-        this.horizontalSpace,
-        this.verticalSpace});
+      this.space,
+      //this.spaceFactor = 1.0,
+      this.horizontalSpace,
+      this.verticalSpace});
 
   static const double defaultSpace = 10;
 
@@ -148,4 +154,45 @@ class AppSpace extends StatelessWidget {
   static const double spaceFactor = 1;
   final double? horizontalSpace;
   final double? verticalSpace;
+}
+
+ElevatedButton appButton(
+  String commandName, {
+  required final VoidCallback? onPressed,
+  final Color? backgroundColor,
+  final double? fontSize,
+  final dynamic value,
+}) {
+  var voidCallback = onPressed == null
+      ? null //  show as disabled   //  fixme: does this work?
+      : () {
+          onPressed.call();
+        };
+
+  return ElevatedButton(
+    clipBehavior: Clip.hardEdge,
+    onPressed: voidCallback,
+    child: Text(commandName,
+        style: TextStyle(
+          fontSize: fontSize ?? App.defaultFontSize,
+        )
+    ),
+  );
+}
+
+IconButton appIconButton({
+  required Widget icon,
+  required VoidCallback onPressed, //  insist on action
+  Color? color,
+  double? iconSize,
+}) {
+  return IconButton(
+    icon: icon,
+    alignment: Alignment.bottomCenter,
+    onPressed: () {
+      onPressed();
+    },
+    color: color,
+    iconSize: iconSize ?? App.defaultFontSize, //  demanded by IconButton
+  );
 }

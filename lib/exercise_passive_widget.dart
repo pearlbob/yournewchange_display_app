@@ -17,8 +17,9 @@ class ExercisePassiveWidget extends StatefulWidget {
 class _ExercisePassiveState extends State<ExercisePassiveWidget> {
   @override
   Widget build(BuildContext context) {
-    final TextStyle? style = Theme.of(context).textTheme.headlineMedium;
+    final TextStyle themeStyle = Theme.of(context).textTheme.headlineLarge ?? TextStyle();
 
+    var style = themeStyle.copyWith(fontSize: 48);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       AppSpace(
         verticalSpace: 20,
@@ -30,32 +31,59 @@ class _ExercisePassiveState extends State<ExercisePassiveWidget> {
       ),
       Consumer<ExerciseDataNotifier>(builder: (context, exerciseDataNotifier, child) {
         var exerciseData = exerciseDataNotifier.exerciseData;
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Text('Name: ${exerciseData.exerciseName} ', style: style),
-            AppSpace(horizontalSpace: 40,),
-            Text('Repetitions:  ', style: style),
-            Text(
-              '${exerciseData.currentRepetitions}',
-              style: style,
+        return Column(
+          children: [
+            AppSpace(verticalSpace: 40),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Text(exerciseData.exerciseName, style: style),
+              ],
             ),
-            if (exerciseData.targetRepetitions != null)
-              Text(
-                ' / ${exerciseData.targetRepetitions}',
-                style: style,
-              ),
-            AppSpace(horizontalSpace: 40,),
-            Text('Duration:  ', style: style),
-            Text(
-              '${exerciseData.start}',
-              style: style,
+            AppSpace(verticalSpace: 40),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Text('Reps:     ', style: style),
+                Text(
+                  '${exerciseData.currentRepetitions}',
+                  style: style,
+                ),
+                if (exerciseData.targetRepetitions != null)
+                  Text(
+                    ' / ${exerciseData.targetRepetitions}',
+                    style: style,
+                  ),
+                AppSpace(),
+                if (exerciseData.targetRepetitions != null)
+                  SizedBox(
+                    width: (style.fontSize ?? App.defaultFontSize) * 3,
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        '(${exerciseData.currentRepetitions - (exerciseData.targetRepetitions ?? 0)})',
+                        style: style,
+                      ),
+                    ),
+                  ),
+              ],
             ),
-            if (exerciseData.targetDuration != null)
-              Text(
-                ' / ${exerciseData.targetDuration!.inSeconds}',
-                style: style,
-              ),
+            AppSpace(verticalSpace: 40),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Text('Duration:          ', style: style),
+                Text(
+                  '${exerciseData.start}',
+                  style: style,
+                ),
+                if (exerciseData.targetDuration != null)
+                  Text(
+                    ' / ${exerciseData.targetDuration!.inSeconds}',
+                    style: style,
+                  ),
+              ],
+            ),
           ],
         );
       }),
