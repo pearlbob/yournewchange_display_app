@@ -35,9 +35,12 @@ class _ExerciseActiveState extends State<ExerciseActiveWidget> {
         Consumer<ExerciseDataNotifier>(builder: (context, exerciseDataNotifier, child) {
           var exerciseData = exerciseDataNotifier.exerciseData;
 
-          _exerciseNameTextEditingController.text = exerciseData.exerciseName;
-          _repetitionTextEditingController.text = exerciseData.targetRepetitions.toString();
-          _durationTextEditingController.text = (exerciseData.targetDuration ?? 60).toString();
+          if ( _firstDisplay) {
+            _firstDisplay = false;
+            _exerciseNameTextEditingController.text = exerciseData.exerciseName;
+            _repetitionTextEditingController.text = exerciseData.targetRepetitions.toString();
+            _durationTextEditingController.text = (exerciseData.targetDuration ?? 60).toString();
+          }
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,6 +236,7 @@ class _ExerciseActiveState extends State<ExerciseActiveWidget> {
     );
   }
 
+  bool _firstDisplay = true;
   final TextEditingController _exerciseNameTextEditingController = TextEditingController();
   final TextEditingController _repetitionTextEditingController = TextEditingController();
   final TextEditingController _durationTextEditingController = TextEditingController();

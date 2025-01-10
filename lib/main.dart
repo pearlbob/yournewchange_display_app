@@ -174,7 +174,9 @@ class ExerciseDataNotifier extends ChangeNotifier {
     }
   }
 
-  get exerciseData => _exerciseData.copy();  // fixme: this copy is a bit abusive but required to see the diff on the refresh
+  // fixme: this copy is a bit abusive but required to see the diff on the refresh
+  get exerciseData => _exerciseData.copy();
+
 
   ExerciseData _exerciseData = ExerciseData();
 }
