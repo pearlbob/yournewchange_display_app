@@ -1,23 +1,26 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'web_socket.dart';
 
 import 'app_logger.dart';
+import 'web_socket_config.dart';
 
 const Level _logMessaging = Level.info;
 const Level _logErrors = Level.info;
 
-class WebSocketClient extends ChangeNotifier {
-  WebSocketClient() {
+class WebSocketClientNotifier extends ChangeNotifier {
+  WebSocketClientNotifier() {
     _connect();
   }
 
   //  try to reconnect on demand if required
   void _connect() async {
+    Uri uri = Uri.parse(uriString);
+    logger.i('uri: $uri port: ${uri.port}');
     try {
       WebSocketChannel channel = WebSocketChannel.connect(
         Uri.parse(uriString),
@@ -27,16 +30,13 @@ class WebSocketClient extends ChangeNotifier {
       channel.stream.listen(onMessage, onDone: onDone, onError: onError);
       _connected = true; //  make a presumption
     }
-    // on SocketException catch (e) {
-    // } on WebSocketChannelException catch (e) {
-    // }
     on Exception catch (e) {
       _webSocketChannel = null; //fixme: required?
       _webSocketReconnectAttempts++;
       logger.i('onCatch #$_webSocketReconnectAttempts: $e');
       _connected = false;
-      //await Future.delayed(const Duration(seconds: 1));
-      //_connect();
+      await Future.delayed(const Duration(seconds: 1));
+      _connect();
     }
   }
 
@@ -79,7 +79,7 @@ class WebSocketClient extends ChangeNotifier {
     logger.log(
         _logMessaging,
         'sendMessage(): _isConnected: $_isConnected'
-            ', message: ${message.toString()}');
+        ', message: ${message.toString()}');
 
     if (_isConnected) {
       _webSocketChannel?.sink.add(message.toString());
@@ -110,6 +110,6 @@ class WebSocketClient extends ChangeNotifier {
       'bob.local' //
       ;
 
-  static const uriString = 'ws://$serverHostname:$dynamicPort';
+  static const uriString = 'ws://$serverHostname:$dynamicPort/ws';
   WebSocketChannel? _webSocketChannel;
 }

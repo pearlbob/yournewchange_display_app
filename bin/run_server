@@ -1,0 +1,4 @@
+#!/bin/tcsh
+#set echo; set verbose
+
+dart run lib/web_server_nano.dart

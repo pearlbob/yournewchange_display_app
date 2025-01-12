@@ -6,19 +6,21 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:yournewchange_display_app/exercise_active_widget.dart';
 import 'package:yournewchange_display_app/exercise_passive_widget.dart';
-import 'package:yournewchange_display_app/web_client.dart';
+import 'package:yournewchange_display_app/web_client_notifier.dart';
 
 import 'app/app.dart';
 import 'app_logger.dart';
 import 'exercise_data.dart';
 
-String client = 'Josh';
+String client = 'bob';
 ClockRefreshNotifier _clockRefreshNotifier = ClockRefreshNotifier();
 ExerciseDataNotifier _exerciseDataNotifier = ExerciseDataNotifier();
-final WebSocketClient webSocketClient = WebSocketClient();
+final WebSocketClientNotifier webSocketClientNotifier = WebSocketClientNotifier();
 
 Level _logMessaging = Level.info;
 Level _logConnection = Level.info;
+
+var _count = 1;//  temp!!!!!!!!!!!!!!!!!!!!!
 
 void main() {
   Logger.level = kDebugMode ? Level.info : Level.warning;
@@ -81,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-    webSocketClient.addListener(_webSocketClientListener);
+    webSocketClientNotifier.addListener(_webSocketClientListener);
 
     myTimer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
       DateTime now = DateTime.now();
@@ -139,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 appButton('test', onPressed: () {
-                  webSocketClient.sendMessage('hello dude');
+                  webSocketClientNotifier.sendMessage('hello dude: ${_count++} times');
                 }),
                 Text('coach display:  ', style: style),
                 ExerciseActiveWidget(),
@@ -158,11 +160,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _webSocketClientListener() {
     logger.log(_logMessaging, 'webSocketClient._webSocketClientListener():');
-    if (_lastConnection != webSocketClient.isConnected) {
+    if (_lastConnection != webSocketClientNotifier.isConnected) {
       setState(() {
         //  update state on a connection change
-        _lastConnection = webSocketClient.isConnected;
-        logger.log(_logConnection, 'connection: ${webSocketClient.isConnected}');
+        _lastConnection = webSocketClientNotifier.isConnected;
+        logger.log(_logConnection, 'connection: ${webSocketClientNotifier.isConnected}');
       });
     }
     logger.log(_logMessaging, 'message: ????');

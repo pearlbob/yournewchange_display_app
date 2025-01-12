@@ -34,6 +34,7 @@ dependencies:
   shelf_router:
   shelf_web_socket:
   web_socket_channel:
+  server_nano:
   intl:
   provider:
   logger:
