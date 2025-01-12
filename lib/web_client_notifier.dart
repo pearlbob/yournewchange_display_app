@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -35,7 +34,7 @@ class WebSocketClientNotifier extends ChangeNotifier {
       _webSocketReconnectAttempts++;
       logger.i('onCatch #$_webSocketReconnectAttempts: $e');
       _connected = false;
-      await Future.delayed(const Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 3));
       _connect();
     }
   }
@@ -105,11 +104,6 @@ class WebSocketClientNotifier extends ChangeNotifier {
   int _webSocketReconnectAttempts = 0;
   static const _maxDelay = 4;
 
-  static const String serverHostname = //
-// '10.42.0.1'
-      'bob.local' //
-      ;
-
-  static const uriString = 'ws://$serverHostname:$dynamicPort/ws';
+  static const uriString = 'ws://$webSocketServerHost:$webSocketDynamicPort/ws';
   WebSocketChannel? _webSocketChannel;
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:args/args.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -19,10 +20,23 @@ final WebSocketClientNotifier webSocketClientNotifier = WebSocketClientNotifier(
 
 Level _logMessaging = Level.info;
 Level _logConnection = Level.info;
+bool _coach = false;
+bool _display = false;
 
-var _count = 1;//  temp!!!!!!!!!!!!!!!!!!!!!
+var _count = 1; //  temp!!!!!!!!!!!!!!!!!!!!!
 
-void main() {
+void main(final List<String> args) {
+  var parser = ArgParser();
+  parser.addFlag('coach', abbr: 'c');
+  parser.addFlag('display', abbr: 'd');
+
+  var results = parser.parse(args);
+  _coach = results.flag('coach');
+  _display = results.flag('display');
+
+  //  insist on a display if not coach
+  _display |= !_coach;
+
   Logger.level = kDebugMode ? Level.info : Level.warning;
 
   runApp(const MyApp());
@@ -130,7 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
-          title: Text(widget.title),
+          title: Text('${widget.title}${_coach ? ' Coach' : ''}'),
         ),
         body: Padding(
           padding: const EdgeInsets.all(90.0),
@@ -143,13 +157,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 appButton('test', onPressed: () {
                   webSocketClientNotifier.sendMessage('hello dude: ${_count++} times');
                 }),
-                Text('coach display:  ', style: style),
-                ExerciseActiveWidget(),
+                if (_coach && _display) Text('coach display:  ', style: style),
+                if (_coach) ExerciseActiveWidget(),
+                if (_coach && _display)
                 AppSpace(
                   verticalSpace: 50,
                 ),
-                Text('client display:  ', style: style),
-                ExercisePassiveWidget(),
+                if (_coach && _display) Text('client display:  ', style: style),
+                if (_display) ExercisePassiveWidget(),
               ],
             ),
           ),

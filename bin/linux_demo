@@ -1,0 +1,15 @@
+#!/bin/tcsh
+#set echo; set verbose
+
+cd ~/github/yournewchange_display_app
+linux_kill
+
+dart compile exe lib/web_server_nano.dart
+mv lib/web_server_nano.exe build/linux/x64/release/yournewchange_server.exe
+flutter build linux lib/main.dart
+
+build/linux/x64/release/yournewchange_server.exe &
+build/linux/x64/release/bundle/yournewchange_display_app -c &
+build/linux/x64/release/bundle/yournewchange_display_app &
+
+exit 0
