@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:args/args.dart';
 import 'package:flutter/foundation.dart';
@@ -16,10 +17,10 @@ import 'exercise_data.dart';
 String client = 'bob';
 ClockRefreshNotifier _clockRefreshNotifier = ClockRefreshNotifier();
 ExerciseDataNotifier _exerciseDataNotifier = ExerciseDataNotifier();
-final WebSocketClientNotifier webSocketClientNotifier = WebSocketClientNotifier();
+final WebSocketClientNotifier _webSocketClientNotifier = WebSocketClientNotifier();
 
-Level _logMessaging = Level.info;
-Level _logConnection = Level.info;
+Level _logMessaging = Level.debug;
+Level _logConnection = Level.debug;
 bool _coach = false;
 bool _display = false;
 
@@ -97,7 +98,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-    webSocketClientNotifier.addListener(_webSocketClientListener);
+    _webSocketClientNotifier.addListener(_webSocketClientListener);
+    _exerciseDataNotifier.addListener(_exerciseDataListener);
 
     myTimer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
       DateTime now = DateTime.now();
@@ -154,15 +156,12 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                appButton('test', onPressed: () {
-                  webSocketClientNotifier.sendMessage('hello dude: ${_count++} times');
-                }),
                 if (_coach && _display) Text('coach display:  ', style: style),
                 if (_coach) ExerciseActiveWidget(),
                 if (_coach && _display)
-                AppSpace(
-                  verticalSpace: 50,
-                ),
+                  AppSpace(
+                    verticalSpace: 50,
+                  ),
                 if (_coach && _display) Text('client display:  ', style: style),
                 if (_display) ExercisePassiveWidget(),
               ],
@@ -175,14 +174,22 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _webSocketClientListener() {
     logger.log(_logMessaging, 'webSocketClient._webSocketClientListener():');
-    if (_lastConnection != webSocketClientNotifier.isConnected) {
+    if (_lastConnection != _webSocketClientNotifier.isConnected) {
       setState(() {
         //  update state on a connection change
-        _lastConnection = webSocketClientNotifier.isConnected;
-        logger.log(_logConnection, 'connection: ${webSocketClientNotifier.isConnected}');
+        _lastConnection = _webSocketClientNotifier.isConnected;
+        logger.log(_logConnection, 'connection: ${_webSocketClientNotifier.isConnected}');
       });
     }
-    logger.log(_logMessaging, 'message: ????');
+    logger.log(_logMessaging, 'message: ???? ${_webSocketClientNotifier.exerciseData}');
+    _exerciseDataNotifier.refresh(_webSocketClientNotifier.exerciseData);
+  }
+
+  _exerciseDataListener() {
+    if (_coach) {
+      //  tell the displays about an exercise data change
+      _webSocketClientNotifier.sendMessage(jsonEncode(_exerciseDataNotifier.exerciseData));
+    }
   }
 
   @override
@@ -215,7 +222,7 @@ class ExerciseDataNotifier extends ChangeNotifier {
     }
   }
 
-  // fixme: this copy is a bit abusive but required to see the diff on the refresh
+  // fixme: this copy is a bit abusive but required to see the diff of any changes on the refresh
   get exerciseData => _exerciseData.copy();
 
   ExerciseData _exerciseData = ExerciseData();

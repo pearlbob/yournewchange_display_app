@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:yournewchange_display_app/exercise_data.dart';
 
 import 'app_logger.dart';
 import 'web_socket_config.dart';
@@ -18,11 +20,11 @@ class WebSocketClientNotifier extends ChangeNotifier {
 
   //  try to reconnect on demand if required
   void _connect() async {
-    Uri uri = Uri.parse(uriString);
+    Uri uri = Uri.parse(_uriString);
     logger.i('uri: $uri port: ${uri.port}');
     try {
       WebSocketChannel channel = WebSocketChannel.connect(
-        Uri.parse(uriString),
+        Uri.parse(_uriString),
       );
       _webSocketChannel = channel;
       await channel.ready;
@@ -42,7 +44,10 @@ class WebSocketClientNotifier extends ChangeNotifier {
   void onMessage(message) {
     if (message is String) {
       {
-        logger.log(_logErrors, 'WebSocketClient.onMessage: unknown String: "$message"');
+      exerciseData = ExerciseData.fromJson(_decoder.convert(message));
+      //  logger.log(_logErrors, 'WebSocketClient.onMessage: unknown String: "$message"');
+       logger.log(_logMessaging, 'WebSocketClient.onMessage: exerciseData: $exerciseData');
+       notifyListeners();
       }
     } else {
       logger.log(_logErrors, 'WebSocketClient.onMessage: unknown type: "$message"');
@@ -104,6 +109,9 @@ class WebSocketClientNotifier extends ChangeNotifier {
   int _webSocketReconnectAttempts = 0;
   static const _maxDelay = 4;
 
-  static const uriString = 'ws://$webSocketServerHost:$webSocketDynamicPort/ws';
+  ExerciseData exerciseData = ExerciseData();
+
+  static const _uriString = 'ws://$webSocketServerHost:$webSocketDynamicPort/ws';
   WebSocketChannel? _webSocketChannel;
+  static const JsonDecoder _decoder = JsonDecoder();
 }
