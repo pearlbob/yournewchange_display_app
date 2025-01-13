@@ -10,8 +10,9 @@ import 'package:yournewchange_display_app/exercise_data.dart';
 import 'app_logger.dart';
 import 'web_socket_config.dart';
 
-const Level _logMessaging = Level.info;
+const Level _logMessaging = Level.debug;
 const Level _logErrors = Level.info;
+const Level _logVerbose = Level.debug;
 
 class WebSocketClientNotifier extends ChangeNotifier {
   WebSocketClientNotifier() {
@@ -20,21 +21,20 @@ class WebSocketClientNotifier extends ChangeNotifier {
 
   //  try to reconnect on demand if required
   void _connect() async {
-    Uri uri = Uri.parse(_uriString);
-    logger.i('uri: $uri port: ${uri.port}');
+    Uri uri = Uri.parse(uriString);
+    logger.log(_logVerbose, 'uri: $uri port: ${uri.port}');
     try {
       WebSocketChannel channel = WebSocketChannel.connect(
-        Uri.parse(_uriString),
+        Uri.parse(uriString),
       );
       _webSocketChannel = channel;
       await channel.ready;
       channel.stream.listen(onMessage, onDone: onDone, onError: onError);
       _connected = true; //  make a presumption
-    }
-    on Exception catch (e) {
+    } on Exception catch (e) {
       _webSocketChannel = null; //fixme: required?
       _webSocketReconnectAttempts++;
-      logger.i('onCatch #$_webSocketReconnectAttempts: $e');
+      logger.log(_logVerbose, 'onCatch #$_webSocketReconnectAttempts: $e');
       _connected = false;
       await Future.delayed(const Duration(seconds: 3));
       _connect();
@@ -44,10 +44,10 @@ class WebSocketClientNotifier extends ChangeNotifier {
   void onMessage(message) {
     if (message is String) {
       {
-      exerciseData = ExerciseData.fromJson(_decoder.convert(message));
-      //  logger.log(_logErrors, 'WebSocketClient.onMessage: unknown String: "$message"');
-       logger.log(_logMessaging, 'WebSocketClient.onMessage: exerciseData: $exerciseData');
-       notifyListeners();
+        exerciseData = ExerciseData.fromJson(_decoder.convert(message));
+        //  logger.log(_logErrors, 'WebSocketClient.onMessage: unknown String: "$message"');
+        logger.log(_logMessaging, 'WebSocketClient.onMessage: exerciseData: $exerciseData');
+        notifyListeners();
       }
     } else {
       logger.log(_logErrors, 'WebSocketClient.onMessage: unknown type: "$message"');
@@ -61,22 +61,24 @@ class WebSocketClientNotifier extends ChangeNotifier {
   void onDone() async {
     _webSocketReconnectAttempts++;
     var delay = min(_webSocketReconnectAttempts++, _maxDelay);
-    logger.i('onDone: reconnecting in $delay seconds, attempt $_webSocketReconnectAttempts');
-    _connected = false;
+    logger.log(_logErrors, 'onDone: reconnecting in $delay seconds, attempt $_webSocketReconnectAttempts');
     _webSocketChannel = null;
+    _connected = false;
+
     await Future.delayed(Duration(seconds: delay));
     _connect();
   }
 
   void onError(error) async {
     _webSocketReconnectAttempts++;
-    logger.i('onError: $error');
+    logger.log(_logErrors, 'onError: $error');
     var delay = min(_webSocketReconnectAttempts, _maxDelay);
-    logger.i('onDone: reconnecting in $delay seconds, attempt $_webSocketReconnectAttempts');
-    _connected = false;
+    logger.log(_logErrors, 'onDone: reconnecting in $delay seconds, attempt $_webSocketReconnectAttempts');
     _webSocketChannel = null;
-    // await Future.delayed(Duration(seconds: delay));
-    // _connect();
+    _connected = false;
+
+    await Future.delayed(Duration(seconds: delay));
+    _connect();
   }
 
   Future<bool> sendMessage(Object message) async {
@@ -99,7 +101,7 @@ class WebSocketClientNotifier extends ChangeNotifier {
   set _connected(bool value) {
     if (_isConnected != value) {
       _isConnected = value;
-      logger.i('connected: $_isConnected');
+      logger.log(_logVerbose, 'connected: $_isConnected');
       notifyListeners();
     }
   }
@@ -111,7 +113,7 @@ class WebSocketClientNotifier extends ChangeNotifier {
 
   ExerciseData exerciseData = ExerciseData();
 
-  static const _uriString = 'ws://$webSocketServerHost:$webSocketDynamicPort/ws';
+  static const uriString = 'ws://$webSocketServerHost:$webSocketDynamicPort/ws';
   WebSocketChannel? _webSocketChannel;
   static const JsonDecoder _decoder = JsonDecoder();
 }

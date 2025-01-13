@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:window_manager/window_manager.dart';
 import 'package:yournewchange_display_app/exercise_active_widget.dart';
 import 'package:yournewchange_display_app/exercise_passive_widget.dart';
 import 'package:yournewchange_display_app/web_client_notifier.dart';
@@ -24,8 +25,6 @@ Level _logConnection = Level.debug;
 bool _coach = false;
 bool _display = false;
 
-var _count = 1; //  temp!!!!!!!!!!!!!!!!!!!!!
-
 void main(final List<String> args) {
   var parser = ArgParser();
   parser.addFlag('coach', abbr: 'c');
@@ -39,6 +38,11 @@ void main(final List<String> args) {
   _display |= !_coach;
 
   Logger.level = kDebugMode ? Level.info : Level.warning;
+
+  if (!kDebugMode) {
+    WidgetsFlutterBinding.ensureInitialized();
+    windowManager.waitUntilReadyToShow(const WindowOptions(fullScreen: true));
+  }
 
   runApp(const MyApp());
 }
@@ -137,6 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
         //  has to be a widget level above it's use
         ChangeNotifierProvider<ClockRefreshNotifier>(create: (_) => _clockRefreshNotifier),
         ChangeNotifierProvider<ExerciseDataNotifier>(create: (_) => _exerciseDataNotifier),
+        ChangeNotifierProvider<WebSocketClientNotifier>(create: (_) => _webSocketClientNotifier),
       ],
       child: Scaffold(
         appBar: AppBar(
@@ -164,6 +169,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 if (_coach && _display) Text('client display:  ', style: style),
                 if (_display) ExercisePassiveWidget(),
+
+                //  connection warning
+                Consumer<WebSocketClientNotifier>(builder: (context, webSocketClientNotifier, child) {
+                  return webSocketClientNotifier.isConnected
+                      ? nullWidget
+                      : Text('Connection lost to ${WebSocketClientNotifier.uriString}',
+                          style: style.copyWith(color: Colors.red));
+                }),
               ],
             ),
           ),
@@ -198,6 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
+  static const nullWidget = SizedBox.shrink();
   bool _lastConnection = false;
   int lastClockMinutes = -1; //  will always trigger on first use
   Timer? myTimer;

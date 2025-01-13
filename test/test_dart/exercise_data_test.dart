@@ -37,6 +37,8 @@ void main() {
     final copy = ExerciseData.fromJson(encoded);
     expect(copy, exerciseData);
 
+    List<ExerciseData> priorData = [];
+
     for (var exerciseMetric in ExerciseMetric.values) {
       exerciseData = ExerciseData();
       exerciseData.exerciseMetric = exerciseMetric;
@@ -54,8 +56,15 @@ void main() {
 
                 final encoded = exerciseData.toJson();
                 logger.i('$exerciseData:\n\t$encoded');
+
                 final copy = ExerciseData.fromJson(encoded);
                 expect(copy, exerciseData);
+
+                expect(priorData.contains(exerciseData), false);
+                expect(priorData.contains(copy), false);
+                priorData.add(exerciseData.copy());   //  avoid match by id only!
+                expect(priorData.contains(exerciseData), true);
+                expect(priorData.contains(copy), true);
               }
             }
           }

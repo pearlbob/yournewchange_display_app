@@ -39,7 +39,7 @@ if ( `hostname` == 'bob' ) then
 	set stat=$status
 	if ( $stat != 0 ) exit $stat
 
-#	echo sha256sum: `sha256sum ${app}Pi.tgz`
+#	echo sha256sum: `sha256sum ${app}_Pi.tgz`
 
 	exit $status
 else
@@ -57,7 +57,7 @@ else
 	flutter -d linux create . --org com.bsteele
 	flutter pub get
 
- flutter build linux --release
+  flutter build linux --release
 	set stat=$status
 	if ( $stat != 0 ) exit $stat
 
