@@ -6,10 +6,11 @@ app_kill
 
 dart compile exe lib/web_server_nano.dart
 mv lib/web_server_nano.exe build/linux/x64/release/yournewchange_server.exe
-flutter build linux lib/main.dart
-
 build/linux/x64/release/yournewchange_server.exe &
-build/linux/x64/release/bundle/yournewchange_display_app -c &
-build/linux/x64/release/bundle/yournewchange_display_app &
+
+flutter run -d linux lib/main.dart -a -c &
+
+sleep 2 # delay so the coach can load and run prior to the display
+flutter run -d linux lib/main.dart  &
 
 exit 0

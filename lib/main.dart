@@ -24,6 +24,7 @@ Level _logMessaging = Level.debug;
 Level _logConnection = Level.debug;
 bool _coach = false;
 bool _display = false;
+bool _fullScreen = false;
 
 void main(final List<String> args) {
   var parser = ArgParser();
@@ -40,11 +41,17 @@ void main(final List<String> args) {
   Logger.level = kDebugMode ? Level.info : Level.warning;
 
   if (!kDebugMode) {
-    WidgetsFlutterBinding.ensureInitialized();
-    windowManager.waitUntilReadyToShow(const WindowOptions(fullScreen: true));
+    _fullScreenSelect(true);
   }
 
   runApp(const MyApp());
+}
+
+void _fullScreenSelect(final bool full) {
+  _fullScreen = full;
+  WidgetsFlutterBinding.ensureInitialized();
+  windowManager.waitUntilReadyToShow(WindowOptions(fullScreen: _fullScreen));
+
 }
 
 class MyApp extends StatelessWidget {
@@ -171,12 +178,22 @@ class _MyHomePageState extends State<MyHomePage> {
                 if (_display) ExercisePassiveWidget(),
 
                 //  connection warning
-                Consumer<WebSocketClientNotifier>(builder: (context, webSocketClientNotifier, child) {
-                  return webSocketClientNotifier.isConnected
-                      ? nullWidget
-                      : Text('Connection lost to ${WebSocketClientNotifier.uriString}',
-                          style: style.copyWith(color: Colors.red));
-                }),
+                Row(
+                  children: [
+                    if (_coach || kDebugMode)
+                      appButton('${_fullScreen ? 'Not ' : ''}Fullscreen', onPressed: () {
+                        setState(() {
+                          _fullScreenSelect(!_fullScreen);
+                        });
+                      }),
+                    Consumer<WebSocketClientNotifier>(builder: (context, webSocketClientNotifier, child) {
+                      return webSocketClientNotifier.isConnected
+                          ? nullWidget
+                          : Text('Connection lost to ${WebSocketClientNotifier.uriString}',
+                              style: style.copyWith(color: Colors.red));
+                    }),
+                  ],
+                ),
               ],
             ),
           ),
