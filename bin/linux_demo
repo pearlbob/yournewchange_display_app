@@ -2,15 +2,18 @@
 #set echo; set verbose
 
 cd ~/github/yournewchange_display_app
-app_kill
+bin/app_kill
 
 dart compile exe lib/web_server_nano.dart
+mkdir -p build/linux/x64/release
 mv lib/web_server_nano.exe build/linux/x64/release/yournewchange_server.exe
 build/linux/x64/release/yournewchange_server.exe &
 
+flutter build linux
+
 flutter run -d linux lib/main.dart -a -c &
 
-sleep 2 # delay so the coach can load and run prior to the display
+sleep 3 # delay so the coach can load and run prior to the display
 flutter run -d linux lib/main.dart  &
 
 exit 0

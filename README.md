@@ -2,6 +2,12 @@
 
 A sample display app for yournewchange.com
 
+- using wayland gui
+- see ~pi/.config/wayfire.ini
+- fix for pi 3's: adjust /usr/bin/xfallback.sh
+- redo sudo raspi-config: auto login user on gui, advanced wayland (#2), enable vnc i.e. wayvnc
+- vnc viewer may need a power cycle on change
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
