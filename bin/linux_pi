@@ -1,5 +1,5 @@
 #!/bin/tcsh
-set echo; set verbose
+#set echo; set verbose
 
 set project=yournewchange_display_app
 set machine=pi@bobspi9.localdomain

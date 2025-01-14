@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:flutter/foundation.dart';
@@ -35,6 +36,9 @@ void main(final List<String> args) {
   _coach = results.flag('coach');
   _display = results.flag('display');
 
+  //  phones are always coaches!
+  _coach |= Platform.isAndroid || Platform.isIOS;
+
   //  insist on a display if not coach
   _display |= !_coach;
 
@@ -51,7 +55,6 @@ void _fullScreenSelect(final bool full) {
   _fullScreen = full;
   WidgetsFlutterBinding.ensureInitialized();
   windowManager.waitUntilReadyToShow(WindowOptions(fullScreen: _fullScreen));
-
 }
 
 class MyApp extends StatelessWidget {
@@ -134,8 +137,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData themeData = Theme.of(context);
-    TextStyle style = themeData.textTheme.headlineLarge ?? TextStyle();
+    final fontSize = computeFontSize(context);
+    final style = (Theme.of(context).textTheme.displayLarge ?? TextStyle()).copyWith(fontSize: fontSize);
 
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -161,7 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text('${widget.title}${_coach ? ' Coach' : ''}'),
         ),
         body: Padding(
-          padding: const EdgeInsets.all(90.0),
+          padding: EdgeInsets.all(fontSize * 2),
           child: Center(
             // Center is a layout widget. It takes a single child and positions it
             // in the middle of the parent.
@@ -178,22 +181,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 if (_display) ExercisePassiveWidget(),
 
                 //  connection warning
-                Row(
-                  children: [
-                    if (_coach || kDebugMode)
-                      appButton('${_fullScreen ? 'Not ' : ''}Fullscreen', onPressed: () {
-                        setState(() {
-                          _fullScreenSelect(!_fullScreen);
-                        });
-                      }),
-                    Consumer<WebSocketClientNotifier>(builder: (context, webSocketClientNotifier, child) {
-                      return webSocketClientNotifier.isConnected
-                          ? nullWidget
-                          : Text('Connection lost to ${WebSocketClientNotifier.uriString}',
-                              style: style.copyWith(color: Colors.red));
-                    }),
-                  ],
-                ),
+                if (_coach || kDebugMode)
+                  appButton('${_fullScreen ? 'Not ' : ''}Fullscreen', fontSize: fontSize, onPressed: () {
+                    setState(() {
+                      _fullScreenSelect(!_fullScreen);
+                    });
+                  }),
+                Consumer<WebSocketClientNotifier>(builder: (context, webSocketClientNotifier, child) {
+                  return webSocketClientNotifier.isConnected
+                      ? nullWidget
+                      : Text('Connection lost to ${WebSocketClientNotifier.uriString}',
+                          style: style.copyWith(color: Colors.red));
+                }),
               ],
             ),
           ),
@@ -257,4 +256,9 @@ class ExerciseDataNotifier extends ChangeNotifier {
   get exerciseData => _exerciseData.copy();
 
   ExerciseData _exerciseData = ExerciseData();
+}
+
+double computeFontSize(final BuildContext context) {
+  MediaQueryData mediaQueryData = MediaQuery.of(context);
+  return mediaQueryData.size.width / 30;
 }

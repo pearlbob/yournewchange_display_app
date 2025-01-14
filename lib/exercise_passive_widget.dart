@@ -19,14 +19,11 @@ class ExercisePassiveWidget extends StatefulWidget {
 class _ExercisePassiveState extends State<ExercisePassiveWidget> {
   @override
   Widget build(BuildContext context) {
-    final TextStyle themeStyle = Theme.of(context).textTheme.headlineLarge ?? TextStyle();
+    final fontSize = computeFontSize(context);
+    final style = (Theme.of(context).textTheme.displayLarge ?? TextStyle()).copyWith(fontSize: fontSize);
 
-    var style = themeStyle.copyWith(fontSize: 48);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      AppSpace(
-        verticalSpace: 20,
-      ),
-      Consumer<ClockRefreshNotifier>(
+       Consumer<ClockRefreshNotifier>(
         builder: (context, clockRefreshNotifier, child) {
           return Text(DateFormat.jm().format(clockRefreshNotifier.now), style: style);
         },

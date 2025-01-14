@@ -1,6 +1,6 @@
 #!/bin/tcsh
 
-#pgrep -f 'yournewchange_.*.exe'
 pkill -f 'yournewchange_'
+pkill -f 'lib/web_server_nano.dart'
 
 exit $status
