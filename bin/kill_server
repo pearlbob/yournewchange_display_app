@@ -1,0 +1,4 @@
+#!/bin/tcsh
+#set echo; set verbose
+
+kill -9 ` pgrep -f "dart run lib/web_server_nano.dart" `

@@ -173,20 +173,27 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 if (_coach && _display) Text('coach display:  ', style: style),
                 if (_coach) ExerciseActiveWidget(),
-                if (_coach && _display)
-                  AppSpace(
-                    verticalSpace: 50,
-                  ),
+                if (_coach && _display) AppSpace(verticalSpace: fontSize),
                 if (_coach && _display) Text('client display:  ', style: style),
                 if (_display) ExercisePassiveWidget(),
 
                 //  connection warning
                 if (_coach || kDebugMode)
-                  appButton('${_fullScreen ? 'Not ' : ''}Fullscreen', fontSize: fontSize, onPressed: () {
-                    setState(() {
-                      _fullScreenSelect(!_fullScreen);
-                    });
-                  }),
+                  Row(
+                    children: [
+                      if (!Platform.isAndroid && !Platform.isIOS)
+                        appButton('${_fullScreen ? 'Not ' : ''}Fullscreen', fontSize: fontSize, onPressed: () {
+                          setState(() {
+                            _fullScreenSelect(!_fullScreen);
+                          });
+                        }),
+                      if (!Platform.isAndroid && !Platform.isIOS) AppSpace(horizontalSpace: fontSize),
+                      appButton('Exit', fontSize: fontSize, onPressed: () {
+                        exit(0);
+                      }),
+                    ],
+                  ),
+
                 Consumer<WebSocketClientNotifier>(builder: (context, webSocketClientNotifier, child) {
                   return webSocketClientNotifier.isConnected
                       ? nullWidget

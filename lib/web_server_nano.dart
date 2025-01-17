@@ -15,6 +15,7 @@ void main() async {
   });
 
   await server.listen(
+    host:Platform.localHostname,
     port: webSocketDynamicPort + 1,
     wsPort: webSocketDynamicPort,
     useWebsocketInMainThread: true,

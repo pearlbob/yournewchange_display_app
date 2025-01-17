@@ -177,7 +177,6 @@ class _ExerciseActiveState extends State<ExerciseActiveWidget> {
                     )
                   ],
                 ),
-              AppSpace(),
               if (exerciseData.exerciseMetric == ExerciseMetric.time)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,

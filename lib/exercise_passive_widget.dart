@@ -30,7 +30,7 @@ class _ExercisePassiveState extends State<ExercisePassiveWidget> {
       ),
       Consumer<ExerciseDataNotifier>(builder: (context, exerciseDataNotifier, child) {
         var exerciseData = exerciseDataNotifier.exerciseData;
-        var currentTime = (exerciseData.currentRepetitions - (exerciseData.targetRepetitions ?? 0));
+        var currentRepetitions = (exerciseData.currentRepetitions - (exerciseData.targetRepetitions ?? 0));
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -65,14 +65,13 @@ class _ExercisePassiveState extends State<ExercisePassiveWidget> {
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: Text(
-                          '(${currentTime.sign > 0 ? '+' : ''}$currentTime)',
+                          '(${currentRepetitions.sign > 0 ? '+' : ''}$currentRepetitions)',
                           style: style,
                         ),
                       ),
                     ),
                 ],
               ),
-            AppSpace(),
             if (exerciseData.exerciseMetric == ExerciseMetric.time)
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,

@@ -30,7 +30,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  web_socket_channel:
   server_nano:
   intl:
   provider:
