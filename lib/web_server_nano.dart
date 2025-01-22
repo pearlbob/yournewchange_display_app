@@ -14,12 +14,15 @@ void main() async {
     });
   });
 
+  //  the websocket host will always be the host name of the server
+  final host = '${Platform.localHostname}.local';
+
   await server.listen(
-    host:Platform.localHostname,
+    host: host,
     port: webSocketDynamicPort + 1,
     wsPort: webSocketDynamicPort,
     useWebsocketInMainThread: true,
   );
 
-  print('server on ws://${Platform.localHostname}.local:$webSocketDynamicPort$_wsIdentifier');
+  print('server on ws://$host:$webSocketDynamicPort$_wsIdentifier');
 }

@@ -1,0 +1,23 @@
+#!/bin/tcsh
+#set echo; set verbose
+
+if ( "$platform" == "" ) then
+  set platform=linux  # for raspberry pi's
+endif
+
+cd ~/github/yournewchange_display_app
+bin/app_kill
+
+dart compile exe lib/web_server_nano.dart
+mkdir -p build
+mv lib/web_server_nano.exe build/yournewchange_server.exe
+build/yournewchange_server.exe &
+
+flutter build $platform
+
+flutter run -d $platform lib/main.dart -a -c &
+
+sleep 3 # delay so the coach can load and run prior to the display
+flutter run -d $platform lib/main.dart  &
+
+exit 0

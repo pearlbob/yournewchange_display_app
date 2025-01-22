@@ -11,6 +11,7 @@ import 'package:window_manager/window_manager.dart';
 import 'package:yournewchange_display_app/exercise_active_widget.dart';
 import 'package:yournewchange_display_app/exercise_passive_widget.dart';
 import 'package:yournewchange_display_app/web_client_notifier.dart';
+import 'package:yournewchange_display_app/web_socket_config.dart';
 
 import 'app/app.dart';
 import 'app_logger.dart';
@@ -28,9 +29,12 @@ bool _display = false;
 bool _fullScreen = false;
 
 void main(final List<String> args) {
+
+  //  process the arguments
   var parser = ArgParser();
   parser.addFlag('coach', abbr: 'c');
   parser.addFlag('display', abbr: 'd');
+  parser.addOption('host', abbr: 'h', defaultsTo: webSocketServerHost);
 
   var results = parser.parse(args);
   _coach = results.flag('coach');
@@ -48,7 +52,10 @@ void main(final List<String> args) {
     _fullScreenSelect(true);
   }
 
-  runApp(const MyApp());
+  webSocketServerHost = results.option('host') ?? webSocketServerHost /* default  */;
+  print( 'hostName: "$webSocketServerHost"');
+
+   runApp(const MyApp());
 }
 
 void _fullScreenSelect(final bool full) {

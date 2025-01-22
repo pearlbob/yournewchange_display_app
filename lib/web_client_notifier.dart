@@ -113,7 +113,7 @@ class WebSocketClientNotifier extends ChangeNotifier {
 
   ExerciseData exerciseData = ExerciseData();
 
-  static const uriString = 'ws://$webSocketServerHost:$webSocketDynamicPort/ws';
+  static String uriString = 'ws://$webSocketServerHost:$webSocketDynamicPort/ws';
   WebSocketChannel? _webSocketChannel;
   static const JsonDecoder _decoder = JsonDecoder();
 }
