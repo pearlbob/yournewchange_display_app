@@ -4,6 +4,7 @@ import 'web_socket_config.dart';
 
 const _wsIdentifier = '/ws';
 
+/// This main runs the websocket data distribution server.
 void main() async {
   final server = Server();
 

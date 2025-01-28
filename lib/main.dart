@@ -28,6 +28,7 @@ bool _coach = false;
 bool _display = false;
 bool _fullScreen = false;
 
+/// This is the main function that starts the coach or display app
 void main(final List<String> args) {
 
   //  process the arguments
