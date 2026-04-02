@@ -62,7 +62,7 @@ class _ExerciseActiveState extends State<ExerciseActiveWidget> {
                   AppTextField(
                     controller: _exerciseNameTextEditingController,
                     hintText: 'Name of the exercise',
-                    width: fontSize * 20,
+                    width: fontSize * 25,
                     maxLines: 1,
                     style: style,
                     onChanged: (value) {

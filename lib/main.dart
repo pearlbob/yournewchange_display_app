@@ -30,7 +30,6 @@ bool _fullScreen = false;
 
 /// This is the main function that starts the coach or display app
 void main(final List<String> args) {
-
   //  process the arguments
   var parser = ArgParser();
   parser.addFlag('coach', abbr: 'c');
@@ -54,9 +53,9 @@ void main(final List<String> args) {
   }
 
   webSocketServerHost = results.option('host') ?? webSocketServerHost /* default  */;
-  print( 'hostName: "$webSocketServerHost"');
+  print('hostName: "$webSocketServerHost"');
 
-   runApp(const MyApp());
+  runApp(const MyApp());
 }
 
 void _fullScreenSelect(final bool full) {
@@ -275,5 +274,5 @@ class ExerciseDataNotifier extends ChangeNotifier {
 
 double computeFontSize(final BuildContext context) {
   MediaQueryData mediaQueryData = MediaQuery.of(context);
-  return mediaQueryData.size.width / 30;
+  return mediaQueryData.size.width / 40;
 }

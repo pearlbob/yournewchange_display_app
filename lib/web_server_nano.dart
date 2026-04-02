@@ -3,6 +3,7 @@ import 'package:server_nano/server_nano.dart';
 import 'web_socket_config.dart';
 
 const _wsIdentifier = '/ws';
+bool verbose = false;
 
 /// This main runs the websocket data distribution server.
 void main() async {
@@ -11,6 +12,7 @@ void main() async {
   // websocket handler
   server.ws(_wsIdentifier, (socket) {
     socket.onMessage((message) {
+      if (verbose) print('message: $message');
       socket.broadcast(message); //  echo to all other client sockets
     });
   });
